@@ -116,8 +116,8 @@ class VigenereEncoder
 		for (int i = 0; i < textEncoded.Length; i++)
 		{
 			int x = 0, y = 0;
-			for (int j = 0; j < validChar.Length; j++) { if (Equals(textInput[i], validChar[j])) { x = j; break; } }
-			for (int j = 0; j < validChar.Length; j++) { if (Equals(key[i], validChar[j])) { y = j; break; } }
+			for (int j = 0; j < table.GetLength(0); j++) { if (Equals(textInput[i], table[0, j])) { x = j; break; } }
+			for (int j = 0; j < table.GetLength(0); j++) { if (Equals(key[i], table[0, j])) { y = j; break; } }
 			textEncoded[i] = table[x, y];
 		}
 		// Show on console
@@ -127,11 +127,125 @@ class VigenereEncoder
 
 	public static void Decode()
 	{
+		// Get text to encode and the key
+		char[] textInput, key;
+		do
+		{
+			Console.Write("Text to decode: ");
+#pragma warning disable CS8602
+			textInput = Console.ReadLine().Trim().ToCharArray();
+#pragma warning restore CS8602
+			if (string.IsNullOrEmpty(textInput.ToString()))
+			{
+				Console.WriteLine("ERROR: Empty value");
+				continue;
+			}
+			else { break; }
+		} while (true);
+		do
+		{
+			Console.Write("Decoder key: ");
+#pragma warning disable CS8602
+			key = Console.ReadLine().Trim().ToCharArray();
+#pragma warning restore CS8602
+			if (string.IsNullOrEmpty(key.ToString()))
+			{
+				Console.WriteLine("ERROR: Empty value");
+				continue;
+			}
+			else { break; }
+		} while (true);
+		Console.WriteLine();
+		// Make the key have the same length that the textInput
+		if (textInput.Length > key.Length)
+		{
+			int i = 0, k = 0; // i for tempIndex and k for keyIndex
+			char[] temp = new char[textInput.Length];
+			while (i < textInput.Length)
+			{
+				if (k >= key.Length) { k = 0; }
+				temp[i] = key[k];
+				i++;
+				k++;
+			}
+			key = temp;
+		}
+		else if (textInput.Length < key.Length)
+		{
+			char[] temp = new char[textInput.Length];
+			for (int i = 0; i < textInput.Length; i++) { temp[i] = key[i]; }
+			key = temp;
+		}
+		// Advertise the user if the char array have non valid char and their will be changed to '+'
+		bool advertise = false;
+		for (int i = 0; i < textInput.Length; i++)
+		{
+			// For the text part
+			bool good = false;
+			for (int j = 0; j < validChar.Length; j++) { if (Equals(textInput[i], validChar[j])) { good = true; break; } }
+			if (!good) { advertise = true; textInput[i] = validChar[^2]; }
 
+			// For the key part
+			good = false;
+			for (int j = 0; j < validChar.Length; j++) { if (Equals(key[i], validChar[j])) { good = true; break; } }
+			if (!good) { advertise = true; key[i] = validChar[^2]; }
+		}
+		if (advertise) { Console.WriteLine("Some characters of your text or key have been changed because their are not valid."); }
+		// Create decoded char array
+		char[] textDecoded = new char[textInput.Length];
+		char[,] table = CreateTable();
+		for (int i = 0; i < textDecoded.Length; i++)
+		{
+			int x = 0, y = 0;
+			for (int j = 0; j < table.GetLength(0); j++) { if (Equals(key[i], table[j, 0])) { y = j; break; } }
+			for (int j = 0; j < table.GetLength(0); j++) { if (Equals(textInput[i], table[j, y])) { x = j; break; } }
+			textDecoded[i] = table[0, x];
+		}
+		// Show on console
+		for (int i = 0; i < textDecoded.Length; i++) { Console.Write(textDecoded[i]); }
+		Console.WriteLine();
 
 
 
 
 	}
 
+	static void Main()
+	{
+		Console.WriteLine(""
+			+ " *********************************************************************\n"
+			+ " *****   Vigenere Encoder / Decoder                              *****\n"
+			+ " *****   Made by Ameaca                                          *****\n"
+			+ " *********************************************************************\n"
+			+ " *                                                                   *\n"
+			+ " *   1 --- Encoder                                                   *\n"
+			+ " *   2 --- Decoder                                                   *\n"
+			+ " *   3 --- Show the Encryption Table                                 *\n"
+			+ " *   0 --- Quit                                                      *\n"
+			+ " *                                                                   *\n"
+			+ " *********************************************************************\n\n");
+		do
+		{
+			ConsoleKey inputMenu = Console.ReadKey().Key;
+			Console.WriteLine();
+			switch (inputMenu)
+			{
+				case ConsoleKey.NumPad0:
+					Console.WriteLine("Bye-bye");
+					return;
+				case ConsoleKey.NumPad1:
+					Encode();
+					break;
+				case ConsoleKey.NumPad2:
+					Decode();
+					break;
+				case ConsoleKey.NumPad3:
+					ShowTable();
+					break;
+				default:
+					Console.WriteLine("ERROR INPUT: Select a valid number");
+					break;
+			}
+		} while (true);
+	}
 }
