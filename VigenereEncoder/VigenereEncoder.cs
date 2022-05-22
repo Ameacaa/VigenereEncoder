@@ -86,7 +86,7 @@ class VigenereEncoder
 				temp[i] = key[k];
 				i++;
 				k++;
-			}
+            }
 			key = temp;
 		}
 		else if (textInput.Length < key.Length)
@@ -119,7 +119,7 @@ class VigenereEncoder
 			for (int j = 0; j < table.GetLength(0); j++) { if (Equals(textInput[i], table[0, j])) { x = j; break; } }
 			for (int j = 0; j < table.GetLength(0); j++) { if (Equals(key[i], table[0, j])) { y = j; break; } }
 			textEncoded[i] = table[x, y];
-		}
+        }
 		// Show on console
 		for (int i = 0; i < textEncoded.Length; i++) { Console.Write(textEncoded[i]); }
 		Console.WriteLine();
