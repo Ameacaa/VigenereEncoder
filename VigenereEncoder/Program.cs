@@ -152,7 +152,7 @@ internal class Vigenere
 
 	static void Main()
 	{
-
+		VigenereEncoder.VigenereEncoder.Encode();
 		
 			
 			

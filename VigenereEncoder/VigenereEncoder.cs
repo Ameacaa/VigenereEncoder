@@ -54,7 +54,6 @@ class VigenereEncoder
 #pragma warning disable CS8602
 			textInput = Console.ReadLine().Trim().ToCharArray();
 #pragma warning restore CS8602
-			Console.WriteLine();
 			if (string.IsNullOrEmpty(textInput.ToString()))
 			{
 				Console.WriteLine("ERROR: Empty value");
@@ -68,7 +67,6 @@ class VigenereEncoder
 #pragma warning disable CS8602
 			key = Console.ReadLine().Trim().ToCharArray();
 #pragma warning restore CS8602
-			Console.WriteLine();
 			if (string.IsNullOrEmpty(key.ToString()))
 			{
 				Console.WriteLine("ERROR: Empty value");
@@ -80,46 +78,49 @@ class VigenereEncoder
 		// Make the key have the same length that the textInput
 		if (textInput.Length > key.Length)
 		{
+			int i = 0, k = 0; // i for tempIndex and k for keyIndex
 			char[] temp = new char[textInput.Length];
-			for (int i = 0; i < key.Length; i++) { temp[i] = key[i]; }
-			int k = 0;
-			while (textInput.Length > key.Length)
+			while (i < textInput.Length)
 			{
-				temp[temp.Length] = temp[k];
+				if (k >= key.Length) { k = 0; }
+				temp[i] = key[k];
+				i++;
 				k++;
 			}
-			key = new char[textInput.Length];
 			key = temp;
 		}
 		else if (textInput.Length < key.Length)
 		{
 			char[] temp = new char[textInput.Length];
 			for (int i = 0; i < textInput.Length; i++) { temp[i] = key[i]; }
-			key = new char[textInput.Length];
 			key = temp;
 		}
 		// Advertise the user if the char array have non valid char and their will be changed to '+'
+		bool advertise = false;
 		for (int i = 0; i < textInput.Length; i++)
 		{
 			// For the text part
 			bool good = false;
 			for (int j = 0; j < validChar.Length; j++) { if (Equals(textInput[i], validChar[j])) { good = true; break; } }
-			if (!good) { textInput[i] = validChar[^2]; }
+			if (!good) { advertise = true; textInput[i] = validChar[^2]; }
 
 			// For the key part
 			good = false;
 			for (int j = 0; j < validChar.Length; j++) { if (Equals(key[i], validChar[j])) { good = true; break; } }
-			if (!good) { key[i] = validChar[^2]; }
+			if (!good) { advertise = true; key[i] = validChar[^2]; }
 		}
-
+		if (advertise) { Console.WriteLine("Some characters of your text or key have been changed because their are not valid."); }
+		// Create encoded char array
 		char[] textEncoded = new char[textInput.Length];
 		char[,] table = CreateTable();
-		for (int i = 0; i < textEncoded.Length; i++) {
+		for (int i = 0; i < textEncoded.Length; i++)
+		{
 			int x = 0, y = 0;
-			for (int j = 0; j < validChar.Length; j++) { if(Equals(textInput[i], validChar[j])) { x = j; break; } }
+			for (int j = 0; j < validChar.Length; j++) { if (Equals(textInput[i], validChar[j])) { x = j; break; } }
 			for (int j = 0; j < validChar.Length; j++) { if (Equals(key[i], validChar[j])) { y = j; break; } }
 			textEncoded[i] = table[x, y];
-        }
+		}
+		// Show on console
 		for (int i = 0; i < textEncoded.Length; i++) { Console.Write(textEncoded[i]); }
 		Console.WriteLine();
 	}
